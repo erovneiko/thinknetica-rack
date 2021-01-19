@@ -3,3 +3,6 @@ Style/AsciiComments:
 
 Layout/TrailingWhitespace:
   Enabled: false
+
+Layout/HashAlignment:
+  Enabled: false

@@ -7,24 +7,35 @@ class TimeFormat
     'hour'   => '%H',
     'minute' => '%M',
     'second' => '%S'
-  }
+  }.freeze
+
+  attr_reader :result_string
+  attr_reader :unknown_tokens
 
   def initialize(format)
-    @format = format
-  end
-
-  def map
     mask = ''
     unknown_tokens = []
 
-    @format.split(',').each do |token|
+    format.split(',').each do |token|
       mask << '-' unless mask.empty?
-      mask << MAPPING[token]
-    rescue TypeError
-      unknown_tokens << token
+
+      if MAPPING.member?(token)
+        mask << MAPPING[token]
+      else
+        unknown_tokens << token
+      end
     end
 
-    [Time.now.strftime(mask) + "\n", unknown_tokens]
+    @result_string = Time.now.strftime(mask) + "\n"
+    @unknown_tokens = unknown_tokens.inspect if unknown_tokens.any?
+  end
+
+  def success?
+    @unknown_tokens.nil?
+  end
+
+  def invalid_string
+    "Unknown time format #{@unknown_tokens}\n"
   end
 
 end

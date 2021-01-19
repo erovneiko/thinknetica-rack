@@ -12,11 +12,13 @@ class App
 
     return response(400, "Parameter <format> not found\n") if format.nil?
 
-    result_string, unknown_tokens = TimeFormat.new(format).map
+    time_format = TimeFormat.new(format)
 
-    return response(400, "Unknown time format #{unknown_tokens.inspect}\n") if unknown_tokens.any?
-
-    response(200, result_string)
+    if time_format.success?
+      response(200, time_format.result_string)
+    else
+      response(400, time_format.invalid_string)
+    end
   end
 
   def response(status, message = nil)
