@@ -1,21 +1,36 @@
+require 'rack'
+require './time_format.rb'
+
 class App
 
   def call(env)
-    [status, headers, body]
+    req = Rack::Request.new(env)
+
+    return response(404) if req.request_method != 'GET' || req.path_info != '/time'
+
+    format = req.params['format']
+
+    return response(400, "Parameter <format> not found\n") if format.nil?
+
+    time_format = TimeFormat.new(format)
+
+    if time_format.success?
+      response(200, time_format.result_string)
+    else
+      response(400, time_format.invalid_string)
+    end
   end
 
-  private
+  def response(status, message = nil)
+    res = Rack::Response.new
 
-  def status
-    200
-  end
+    if message
+      res['Content-Type'] = 'text/plain'
+      res.write message
+    end
 
-  def headers
-    { 'Content-Type' => 'text/plain' }
-  end
-
-  def body
-    ["Welcome!\n"]
+    res.status = status
+    res.finish
   end
 
 end
